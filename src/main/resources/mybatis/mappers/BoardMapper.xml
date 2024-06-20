@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nc13.mappers.BoardMapper">
+    <!--
+    #{} 과 ${}의 차이
+    #{}: 안에 들어간 값을 ''으로 감싸준다.
+    ${}: 안에 들어간 값을 감싸주지 않는다.
+    만약 우리가 값을 입력할 때에는 입력할 값을 ''으로 감싸주는게 맞지만
+    Limit 과 같은 쿼리에 어떤 값을 넣을 때에는 '' 으로 감싸면 에러가 나온다.
+    (우리가 Mysql 기존에 있는 쿼리를 그대로 사용 했었다.
+    리밋을 우리가 넣어줄꺼고 리밋을 넣어줄 때는 LIMIT '0' '25'; 이렇게 하면 에러가 나온다.
+    얘는 우리가 따움표가 없어야 한다. LIMIT ;, 25; 이런식으로 )
+    -->
+    <select id="selectAll" resultType="boardDTO" parameterType="hashmap">
+        SELECT * FROM board
+        INNER JOIN user
+        ON board.writer_Id = user.id
+        ORDER BY board.id DESC
+        LIMIT ${startRow},${size}
+    </select>
+
+    <insert id="insert" parameterType="boardDTO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO board(title,content,writer_id)
+        VALUES(#{title}, #{content}, #{writerId})
+    </insert>
+
+
+    <select id="selectOne" parameterType="int" resultType="boardDTO">
+        SELECT * FROM board
+        INNER JOIN user
+        ON board.writer_id = user.id
+        WHERE board.id = #{id}
+    </select>
+    <!-- 게시판 수정 -->
+    <update id = "update" parameterType="boardDTO">
+        UPDATE board
+        SET title = #{title},
+        content = #{content},
+        modify_date = NOW()
+        WHERE id = #{id}
+    </update>
+    <!-- 게시판 삭제 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM board
+        WHERE id = #{id}
+    </delete>
+
+    <!--총 게시글의 갯수-->
+    <select id="selectMaxRow" resultType="int">
+        SELECT COUNT(*) FROM board
+
+    </select>
+</mapper>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nc13.mappers.ReplyMapper">
+    <!--
+    #{} 과 ${}의 차이
+    #{}: 안에 들어간 값을 ''으로 감싸준다.
+    ${}: 안에 들어간 값을 감싸주지 않는다.
+    만약 우리가 값을 입력할 때에는 입력할 값을 ''으로 감싸주는게 맞지만
+    Limit 과 같은 쿼리에 어떤 값을 넣을 때에는 '' 으로 감싸면 에러가 나온다.
+    (우리가 Mysql 기존에 있는 쿼리를 그대로 사용 했었다.
+    리밋을 우리가 넣어줄꺼고 리밋을 넣어줄 때는 LIMIT '0' '25'; 이렇게 하면 에러가 나온다.
+    얘는 우리가 따움표가 없어야 한다. LIMIT ;, 25; 이런식으로 )
+    -->
+
+    <select id="selectAll" resultType="replyDTO" parameterType="int">
+        SELECT * FROM reply
+        INNER JOIN user
+        ON reply.writer_id = user.id
+        WHERE board_id = #{boardId}
+        ORDER BY reply.id ASC
+    </select>
+
+    <select id="selectOne" resultType="replyDTO" parameterType="int">
+        SELECT * FROM reply
+        WHERE id = #{id}
+    </select>
+
+
+    <insert id="insert" parameterType="replyDTO">
+        INSERT INTO reply(content,entry_date, modify_date, writer_id, board_id)
+        VALUES (#{content}, NOW() , NOW(), #{writerId}, #{boardId})
+    </insert>
+
+    <update id="update" parameterType="replyDTO">
+        UPDATE reply
+        SET content = #{content},
+        modify_date = NOW()
+        WHERE id = #{id}
+    </update>
+
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM reply
+        WHERE id = #{id}
+    </delete>
+
+
+</mapper>
